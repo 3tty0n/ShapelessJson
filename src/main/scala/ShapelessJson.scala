@@ -1,6 +1,5 @@
-import play.api.libs._
-import json._
-import shapeless.{LabelledProductTypeClass, `::` => :#:, _}
+import play.api.libs.json._
+import shapeless.{HList, HNil, `::` => :#:,LabelledProductTypeClass, LabelledProductTypeClassCompanion, _}
 
 trait ShapelessJson {
 
@@ -24,7 +23,7 @@ trait ShapelessJson {
   implicit def readsInstance: LabelledProductTypeClass[Reads] = new LabelledProductTypeClass[Reads] {
     def emptyProduct: Reads[HNil] = Reads(_ => JsSuccess(HNil))
 
-    def product[H, T <: HList](name: String, ch: Reads[H], ct: Reads[T]): Reads[:#:[H, T]] = {
+    def product[H, T <: HList](name: String, ch: Reads[H], ct: Reads[T]): Reads[:#:[H, T]] = Reads[:#:[H, T]] {
       case obj @ JsObject(fields) =>
         for {
           head <- ch.reads(obj \ name)
